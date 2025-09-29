@@ -111,7 +111,7 @@ def seed_minimal_2024() -> None:
         )
 
         # Create three sessions (FP, Q, Race) with a simple order
-        fp, _ = get_or_create(
+        _fp, _ = get_or_create(
             db,
             RaceSession,
             event_id=bah_gp.id,
@@ -119,7 +119,7 @@ def seed_minimal_2024() -> None:
             session_order=1,
             defaults={"name": "Practice", "started_at": datetime(2024, 2, 29, 12, 0, 0)},
         )
-        q, _ = get_or_create(
+        _q, _ = get_or_create(
             db,
             RaceSession,
             event_id=bah_gp.id,
