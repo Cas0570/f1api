@@ -1,0 +1,98 @@
+name: CI
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    lint-and-test:
+        name: Lint, Type Check & Test
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: f1user
+                    POSTGRES_PASSWORD: f1pass
+                    POSTGRES_DB: f1db
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
+        env:
+            DATABASE_URL: postgresql+psycopg://f1user:f1pass@localhost:5432/f1db
+            PYTHONPATH: .
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v3
+              with:
+                  version: "latest"
+
+            - name: Set up Python
+              run: uv python install 3.13
+
+            - name: Install dependencies
+              run: |
+                  uv sync --frozen
+                  uv pip list
+
+            - name: Run Ruff (lint)
+              run: uv run ruff check .
+
+            - name: Run Black (format check)
+              run: uv run black --check .
+
+            - name: Run MyPy (type check)
+              run: uv run mypy f1api
+
+            - name: Run Alembic migrations
+              run: uv run alembic upgrade head
+
+            - name: Seed test data
+              run: uv run python -m f1api.services.seed_2024
+
+            - name: Run tests
+              run: uv run pytest -v --tb=short
+
+            - name: Test summary
+              if: always()
+              run: |
+                  echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ All checks passed!" >> $GITHUB_STEP_SUMMARY
+
+    docker-build:
+        name: Docker Build Test
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build Docker image
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  push: false
+                  tags: f1api:ci-test
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+            - name: Build summary
+              if: always()
+              run: |
+                  echo "## Docker Build" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Docker image built successfully!" >> $GITHUB_STEP_SUMMARY

@@ -1,5 +1,7 @@
 # 🏎️ F1 API
 
+[![CI](https://github.com/Cas0570/f1-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Cas0570/f1-api/actions/workflows/ci.yml)
+
 A Formula 1 data API built with **FastAPI**, **SQLAlchemy**, **Alembic**, and **Postgres**.
 It exposes seasons, drivers, teams, circuits, events, sessions, and results — starting with **comprehensive 2024 season data** (10 teams, 20 drivers, 6 races).
 
@@ -26,6 +28,7 @@ It exposes seasons, drivers, teams, circuits, events, sessions, and results — 
 -   Filters & pagination (e.g. `/api/v1/events?season_year=2024`)
 -   Full test suite (`pytest + httpx`)
 -   Pre-commit hooks (Ruff, Black, MyPy)
+-   **Automated CI/CD** with GitHub Actions ⭐ NEW
 -   Dockerized for local dev (API + Postgres)
 
 ---
@@ -84,6 +87,19 @@ make down
 
 ---
 
+## 🔄 Continuous Integration
+
+Every push and pull request automatically runs:
+
+-   **Linting** (Ruff) - Code style checks
+-   **Type checking** (MyPy) - Static type verification
+-   **Tests** (pytest) - Full test suite with real database
+-   **Docker build** - Ensures image builds successfully
+
+See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for details.
+
+---
+
 ## 🔎 Quick API Tests
 
 ### Health check
@@ -124,11 +140,11 @@ curl "http://localhost:8000/api/v1/standings/drivers?season_year=2024&limit=10" 
 
 Expected top 5:
 
-1. Max Verstappen - 126 pts, 4 wins
-2. Charles Leclerc - 87 pts, 0 wins
-3. Lando Norris - 86 pts, 1 win
-4. Sergio Pérez - 85 pts, 0 wins
-5. Carlos Sainz - 85 pts, 1 win
+1. Max Verstappen - 118 pts, 4 wins
+2. Sergio Pérez - 91 pts, 0 wins
+3. Charles Leclerc - 84 pts, 0 wins
+4. Lando Norris - 78 pts, 1 win
+5. Carlos Sainz - 75 pts, 1 win
 
 ### Get constructor standings
 
@@ -138,9 +154,9 @@ curl "http://localhost:8000/api/v1/standings/constructors?season_year=2024" | jq
 
 Expected top 3:
 
-1. Red Bull Racing - 211 pts, 4 wins
-2. Ferrari - 172 pts, 1 win
-3. McLaren - 110 pts, 1 win
+1. Red Bull Racing - 209 pts, 4 wins
+2. Ferrari - 159 pts, 1 win
+3. McLaren - 116 pts, 1 win
 
 ---
 
