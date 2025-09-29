@@ -1,7 +1,7 @@
 PY=uv run
 PKG=f1api
 
-.PHONY: setup lint type test run up down build fmt
+.PHONY: setup lint type test migrate run up down build fmt
 
 setup:
 	uv venv
@@ -20,6 +20,10 @@ type:
 
 test:
 	PYTHONPATH=. uv run pytest -q
+
+MIGRATE?=head
+migrate:
+	uv run alembic upgrade $(MIGRATE)
 
 run:
 	uv run uvicorn $(PKG).main:app --host 0.0.0.0 --port 8000 --reload

@@ -5,8 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "alembic==1.13.2",
     "fastapi==0.115.2",
+    "psycopg[binary]==3.2.3",
     "pydantic-settings==2.4.0",
+    "sqlalchemy==2.0.36",
     "uvicorn[standard]==0.30.6",
 ]
 
@@ -26,6 +29,12 @@ python_version = "3.13"
 warn_unused_ignores = true
 ignore_missing_imports = true
 plugins = []
+
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100
 
 [tool.pytest.ini_options]
 addopts = "-q"
