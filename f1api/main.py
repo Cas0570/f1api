@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from f1api.api.router import api_router
 
 app = FastAPI(
     title="F1 API",
@@ -7,6 +8,8 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+app.include_router(api_router)
 
 
 @app.get("/healthz", tags=["meta"])
