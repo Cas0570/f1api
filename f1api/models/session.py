@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import ForeignKey, Index, String
@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from f1api.models.base import Base, TimestampMixin
 
 
-class SessionType(str, Enum):
+class SessionType(StrEnum):
     FP = "FP"  # practice (we can extend to FP1/FP2 later via name/sequence)
     QUALIFYING = "Q"
     RACE = "RACE"
