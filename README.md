@@ -1,7 +1,7 @@
 # 🏎️ F1 API
 
 A Formula 1 data API built with **FastAPI**, **SQLAlchemy**, **Alembic**, and **Postgres**.
-It exposes seasons, drivers, teams, circuits, events, sessions, and results — starting with a minimal **2024 seed dataset**.
+It exposes seasons, drivers, teams, circuits, events, sessions, and results — starting with **comprehensive 2024 season data** (10 teams, 20 drivers, 6 races).
 
 ---
 
@@ -11,14 +11,18 @@ It exposes seasons, drivers, teams, circuits, events, sessions, and results — 
 -   `/metrics` stub endpoint (Prometheus-compatible placeholder)
 -   CRUD-ready DB layer with SQLAlchemy 2.0
 -   Alembic migrations for schema evolution
--   Seed script for minimal 2024 season data
+-   Comprehensive 2024 season seed data:
+    -   **10 teams** (Red Bull, Ferrari, Mercedes, McLaren, Aston Martin, Alpine, Williams, RB, Kick Sauber, Haas)
+    -   **20 drivers** (full 2024 grid)
+    -   **6 circuits** (Bahrain, Saudi Arabia, Australia, Japan, China, Miami)
+    -   **6 races** with realistic results and standings
 -   Read-only API for:
     -   **Seasons** (`/api/v1/seasons`)
     -   **Drivers** (`/api/v1/drivers`)
     -   **Teams** (`/api/v1/teams`)
     -   **Events** (`/api/v1/events`)
     -   **Standings** (`/api/v1/standings/drivers`, `/api/v1/standings/constructors`)
--   **Paginated responses** with metadata (total, limit, offset, page, pages) ⭐ NEW
+-   **Paginated responses** with metadata (total, limit, offset, page, pages)
 -   Filters & pagination (e.g. `/api/v1/events?season_year=2024`)
 -   Full test suite (`pytest + httpx`)
 -   Pre-commit hooks (Ruff, Black, MyPy)
@@ -69,7 +73,7 @@ This will:
 
 -   Launch Postgres
 -   Run Alembic migrations
--   Seed minimal 2024 dataset
+-   Seed comprehensive 2024 dataset (10 teams, 20 drivers, 6 races)
 -   Start the API on port 8000
 
 ### 2. Stop services
@@ -88,11 +92,10 @@ make down
 curl http://localhost:8000/healthz
 ```
 
-### List drivers (with pagination metadata)
+### List all 20 drivers
 
 ```bash
-curl http://localhost:8000/api/v1/drivers | jq
-# Response includes: items, total, limit, offset, page, pages
+curl http://localhost:8000/api/v1/drivers | jq '.items[] | {name: (.first_name + " " + .last_name), code: .code}'
 ```
 
 ### Filter driver by code
@@ -101,48 +104,43 @@ curl http://localhost:8000/api/v1/drivers | jq
 curl "http://localhost:8000/api/v1/drivers?code=VER" | jq
 ```
 
-### Paginate with limit/offset
+### List all 10 teams
 
 ```bash
-curl "http://localhost:8000/api/v1/drivers?limit=1&offset=0" | jq
-# Returns: {"items": [...], "total": 2, "limit": 1, "offset": 0, "page": 1, "pages": 2}
+curl http://localhost:8000/api/v1/teams | jq '.items[] | {name: .name}'
 ```
 
-### Get driver by ID
+### List all 6 races
 
 ```bash
-curl http://localhost:8000/api/v1/drivers/1
+curl "http://localhost:8000/api/v1/events?season_year=2024" | jq '.items[] | {round: .round, name: .name}'
 ```
 
-### List teams
+### Get driver standings after 6 races
 
 ```bash
-curl http://localhost:8000/api/v1/teams | jq
+curl "http://localhost:8000/api/v1/standings/drivers?season_year=2024&limit=10" | jq '.items[] | {pos: .position, driver: (.driver_first_name + " " + .driver_last_name), points: .points, wins: .wins}'
 ```
 
-### List seasons
+Expected top 5:
 
-```bash
-curl http://localhost:8000/api/v1/seasons | jq
-```
-
-### List events (filter by season year)
-
-```bash
-curl "http://localhost:8000/api/v1/events?season_year=2024" | jq
-```
-
-### Get driver standings
-
-```bash
-curl "http://localhost:8000/api/v1/standings/drivers?season_year=2024" | jq
-```
+1. Max Verstappen - 126 pts, 4 wins
+2. Charles Leclerc - 87 pts, 0 wins
+3. Lando Norris - 86 pts, 1 win
+4. Sergio Pérez - 85 pts, 0 wins
+5. Carlos Sainz - 85 pts, 1 win
 
 ### Get constructor standings
 
 ```bash
-curl "http://localhost:8000/api/v1/standings/constructors?season_year=2024" | jq
+curl "http://localhost:8000/api/v1/standings/constructors?season_year=2024" | jq '.items[] | {pos: .position, team: .team_name, points: .points, wins: .wins}'
 ```
+
+Expected top 3:
+
+1. Red Bull Racing - 211 pts, 4 wins
+2. Ferrari - 172 pts, 1 win
+3. McLaren - 110 pts, 1 win
 
 ---
 
@@ -173,9 +171,10 @@ f1api/
 
 ## 🔮 Next Steps
 
--   Expand seed data (all 2024 races & results)
+-   Expand to full 24-race 2024 calendar
+-   Add qualifying session results
 -   Replace `/metrics` stub with real Prometheus exporter
--   Add structured logging & error handling
+-   Add structured logging
 -   Add API key authentication
 -   Add caching layer (Redis)
 
