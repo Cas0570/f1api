@@ -11,7 +11,7 @@ async def test_list_events_filter_by_year() -> None:
         resp = await client.get("/api/v1/events?season_year=2024")
     assert resp.status_code == 200
     data = resp.json()
-    assert any(e["name"] == "Bahrain Grand Prix" for e in data)
+    assert any(e["name"] == "Bahrain Grand Prix" for e in data["items"])
 
 
 @pytest.mark.asyncio
@@ -19,7 +19,7 @@ async def test_get_event_by_id() -> None:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         list_resp = await client.get("/api/v1/events?season_year=2024")
-        eid = list_resp.json()[0]["id"]
+        eid = list_resp.json()["items"][0]["id"]
 
         resp = await client.get(f"/api/v1/events/{eid}")
     assert resp.status_code == 200

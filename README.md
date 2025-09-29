@@ -17,7 +17,8 @@ It exposes seasons, drivers, teams, circuits, events, sessions, and results — 
     -   **Drivers** (`/api/v1/drivers`)
     -   **Teams** (`/api/v1/teams`)
     -   **Events** (`/api/v1/events`)
-    -   **Standings** (`/api/v1/standings/drivers`, `/api/v1/standings/constructors`) ⭐ NEW
+    -   **Standings** (`/api/v1/standings/drivers`, `/api/v1/standings/constructors`)
+-   **Paginated responses** with metadata (total, limit, offset, page, pages) ⭐ NEW
 -   Filters & pagination (e.g. `/api/v1/events?season_year=2024`)
 -   Full test suite (`pytest + httpx`)
 -   Pre-commit hooks (Ruff, Black, MyPy)
@@ -87,16 +88,24 @@ make down
 curl http://localhost:8000/healthz
 ```
 
-### List drivers
+### List drivers (with pagination metadata)
 
 ```bash
-curl http://localhost:8000/api/v1/drivers
+curl http://localhost:8000/api/v1/drivers | jq
+# Response includes: items, total, limit, offset, page, pages
 ```
 
 ### Filter driver by code
 
 ```bash
-curl "http://localhost:8000/api/v1/drivers?code=VER"
+curl "http://localhost:8000/api/v1/drivers?code=VER" | jq
+```
+
+### Paginate with limit/offset
+
+```bash
+curl "http://localhost:8000/api/v1/drivers?limit=1&offset=0" | jq
+# Returns: {"items": [...], "total": 2, "limit": 1, "offset": 0, "page": 1, "pages": 2}
 ```
 
 ### Get driver by ID
@@ -108,31 +117,31 @@ curl http://localhost:8000/api/v1/drivers/1
 ### List teams
 
 ```bash
-curl http://localhost:8000/api/v1/teams
+curl http://localhost:8000/api/v1/teams | jq
 ```
 
 ### List seasons
 
 ```bash
-curl http://localhost:8000/api/v1/seasons
+curl http://localhost:8000/api/v1/seasons | jq
 ```
 
 ### List events (filter by season year)
 
 ```bash
-curl "http://localhost:8000/api/v1/events?season_year=2024"
+curl "http://localhost:8000/api/v1/events?season_year=2024" | jq
 ```
 
-### ⭐ Get driver standings (NEW)
+### Get driver standings
 
 ```bash
-curl "http://localhost:8000/api/v1/standings/drivers?season_year=2024"
+curl "http://localhost:8000/api/v1/standings/drivers?season_year=2024" | jq
 ```
 
-### ⭐ Get constructor standings (NEW)
+### Get constructor standings
 
 ```bash
-curl "http://localhost:8000/api/v1/standings/constructors?season_year=2024"
+curl "http://localhost:8000/api/v1/standings/constructors?season_year=2024" | jq
 ```
 
 ---
@@ -165,9 +174,9 @@ f1api/
 ## 🔮 Next Steps
 
 -   Expand seed data (all 2024 races & results)
--   Add enhanced pagination with metadata
 -   Replace `/metrics` stub with real Prometheus exporter
 -   Add structured logging & error handling
 -   Add API key authentication
+-   Add caching layer (Redis)
 
 ---

@@ -5,18 +5,18 @@ from sqlalchemy.orm import Session
 from f1api.core.db import get_db
 from f1api.models import Driver, Entry, Season, SessionResult, SessionType, Team
 from f1api.models import Session as RaceSession
-from f1api.schemas import ConstructorStandingRead, DriverStandingRead
+from f1api.schemas import ConstructorStandingRead, DriverStandingRead, PaginatedResponse
 
 router = APIRouter(prefix="/standings", tags=["Standings"])
 
 
-@router.get("/drivers", response_model=list[DriverStandingRead])
+@router.get("/drivers", response_model=PaginatedResponse[DriverStandingRead])
 def get_driver_standings(
     db: Session = Depends(get_db),  # noqa: B008
     season_year: int = Query(..., description="Season year (required)"),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-) -> list[DriverStandingRead]:
+) -> PaginatedResponse[DriverStandingRead]:
     """
     Get driver championship standings for a season.
     Points are aggregated from all race sessions.
@@ -26,9 +26,8 @@ def get_driver_standings(
     if not season:
         raise HTTPException(status_code=404, detail=f"Season {season_year} not found")
 
-    # Aggregate points and wins per driver
-    # Join: SessionResult -> Entry -> Driver/Team -> Session (filter RACE only)
-    stmt = (
+    # Build base aggregation query
+    base_stmt = (
         select(
             Driver.id.label("driver_id"),
             Driver.ref.label("driver_ref"),
@@ -48,7 +47,15 @@ def get_driver_standings(
         .filter(Entry.season_id == season.id)
         .filter(RaceSession.type == SessionType.RACE)
         .group_by(Driver.id, Team.id)
-        .order_by(func.sum(SessionResult.points).desc(), Driver.last_name)
+    )
+
+    # Get total count
+    count_stmt = select(func.count()).select_from(base_stmt.subquery())
+    total = db.scalar(count_stmt) or 0
+
+    # Get paginated items
+    stmt = (
+        base_stmt.order_by(func.sum(SessionResult.points).desc(), Driver.last_name)
         .limit(limit)
         .offset(offset)
     )
@@ -56,9 +63,9 @@ def get_driver_standings(
     rows = db.execute(stmt).all()
 
     # Build response with positions
-    standings = []
+    items = []
     for idx, row in enumerate(rows, start=1 + offset):
-        standings.append(
+        items.append(
             DriverStandingRead(
                 position=idx,
                 driver_id=row.driver_id,
@@ -73,16 +80,16 @@ def get_driver_standings(
             )
         )
 
-    return standings
+    return PaginatedResponse.create(items=items, total=total, limit=limit, offset=offset)
 
 
-@router.get("/constructors", response_model=list[ConstructorStandingRead])
+@router.get("/constructors", response_model=PaginatedResponse[ConstructorStandingRead])
 def get_constructor_standings(
     db: Session = Depends(get_db),  # noqa: B008
     season_year: int = Query(..., description="Season year (required)"),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-) -> list[ConstructorStandingRead]:
+) -> PaginatedResponse[ConstructorStandingRead]:
     """
     Get constructor (team) championship standings for a season.
     Points are aggregated from all drivers' race results.
@@ -92,8 +99,8 @@ def get_constructor_standings(
     if not season:
         raise HTTPException(status_code=404, detail=f"Season {season_year} not found")
 
-    # Aggregate points and wins per team
-    stmt = (
+    # Build base aggregation query
+    base_stmt = (
         select(
             Team.id.label("team_id"),
             Team.ref.label("team_ref"),
@@ -108,7 +115,15 @@ def get_constructor_standings(
         .filter(Entry.season_id == season.id)
         .filter(RaceSession.type == SessionType.RACE)
         .group_by(Team.id)
-        .order_by(func.sum(SessionResult.points).desc(), Team.name)
+    )
+
+    # Get total count
+    count_stmt = select(func.count()).select_from(base_stmt.subquery())
+    total = db.scalar(count_stmt) or 0
+
+    # Get paginated items
+    stmt = (
+        base_stmt.order_by(func.sum(SessionResult.points).desc(), Team.name)
         .limit(limit)
         .offset(offset)
     )
@@ -116,9 +131,9 @@ def get_constructor_standings(
     rows = db.execute(stmt).all()
 
     # Build response with positions
-    standings = []
+    items = []
     for idx, row in enumerate(rows, start=1 + offset):
-        standings.append(
+        items.append(
             ConstructorStandingRead(
                 position=idx,
                 team_id=row.team_id,
@@ -129,4 +144,4 @@ def get_constructor_standings(
             )
         )
 
-    return standings
+    return PaginatedResponse.create(items=items, total=total, limit=limit, offset=offset)

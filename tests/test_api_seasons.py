@@ -11,7 +11,7 @@ async def test_list_seasons_seeded() -> None:
         resp = await client.get("/api/v1/seasons")
     assert resp.status_code == 200
     data = resp.json()
-    assert any(s["year"] == 2024 for s in data)
+    assert any(s["year"] == 2024 for s in data["items"])
 
 
 @pytest.mark.asyncio
@@ -19,7 +19,7 @@ async def test_get_season_by_id() -> None:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         list_resp = await client.get("/api/v1/seasons")
-        sid = list_resp.json()[0]["id"]
+        sid = list_resp.json()["items"][0]["id"]
 
         resp = await client.get(f"/api/v1/seasons/{sid}")
     assert resp.status_code == 200
