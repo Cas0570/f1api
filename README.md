@@ -1,6 +1,6 @@
 # 🏎️ F1 API
 
-[![CI](https://github.com/Cas0570/f1-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Cas0570/f1-api/actions/workflows/ci.yml)
+[![CI](https://github.com/Cas0570/f1api/actions/workflows/ci.yml/badge.svg)](https://github.com/Cas0570/f1api/actions/workflows/ci.yml)
 
 A Formula 1 data API built with **FastAPI**, **SQLAlchemy**, **Alembic**, and **Postgres**.
 It exposes seasons, drivers, teams, circuits, events, sessions, and results — starting with **comprehensive 2024 season data** (10 teams, 20 drivers, 6 races).
