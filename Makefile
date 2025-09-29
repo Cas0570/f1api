@@ -9,34 +9,33 @@ setup:
 	pre-commit install
 
 lint:
-	uv run ruff check .
+	$(PY) ruff check .
 
 fmt:
-	uv run ruff check . --fix
-	uv run ruff format .
-	uv run black .
+	$(PY) ruff check . --fix
+	$(PY) black .
 
 type:
-	uv run mypy $(PKG)
+	$(PY) mypy $(PKG)
 
 test:
-	PYTHONPATH=. uv run pytest -q
+	PYTHONPATH=. $(PY) pytest -q
 
 MIGRATE?=head
 migrate:
-	uv run alembic upgrade $(MIGRATE)
+	$(PY) alembic upgrade $(MIGRATE)
 
 seed:
-	PYTHONPATH=. uv run python -m f1api.services.seed_2024
+	PYTHONPATH=. $(PY) python -m f1api.services.seed_2024
 
 run:
-	uv run uvicorn $(PKG).main:app --host 0.0.0.0 --port 8000 --reload
+	$(PY) uvicorn $(PKG).main:app --host 0.0.0.0 --port 8000 --reload
 
 up:
 	docker compose up --build
 
 down:
-	docker compose down
+	docker compose down -v
 
 build:
 	docker build -t f1api:local .

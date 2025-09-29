@@ -1,31 +1,30 @@
 services:
-    api:
-        build: .
-        container_name: f1api
-        env_file: .env.example
+    db:
+        image: postgres:16
         environment:
-            DATABASE_URL: postgresql+psycopg://f1:f1password@postgres:5432/f1db
-        ports:
-            - "8000:8000"
-        depends_on:
-            - postgres
-        volumes:
-            - ./:/app:delegated
-        command: >
-            uv run uvicorn f1api.main:app
-            --host 0.0.0.0 --port 8000 --reload
-
-    postgres:
-        image: postgres:16-alpine
-        container_name: f1db
-        environment:
-            POSTGRES_USER: f1
-            POSTGRES_PASSWORD: f1password
+            POSTGRES_USER: f1user
+            POSTGRES_PASSWORD: f1pass
             POSTGRES_DB: f1db
         ports:
             - "5432:5432"
-        volumes:
-            - f1pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U f1user -d f1db"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
 
-volumes:
-    f1pgdata:
+    api:
+        build: .
+        depends_on:
+            db:
+                condition: service_healthy
+        environment:
+            DATABASE_URL: postgresql+psycopg://f1user:f1pass@db:5432/f1db
+        ports:
+            - "8000:8000"
+        command: >
+            sh -c "
+              uv run alembic upgrade head &&
+              uv run python -m f1api.services.seed_2024 &&
+              uv run uvicorn f1api.main:app --host 0.0.0.0 --port 8000 --reload
+            "

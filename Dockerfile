@@ -1,28 +1,25 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=off \
-    UV_SYSTEM_PYTHON=1 \
-    PATH="/root/.local/bin:${PATH}"
+# System deps
+RUN apt-get update && apt-get install -y \
+    curl build-essential libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-# system deps (curl required to install uv)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl build-essential && \
-    rm -rf /var/lib/apt/lists/*
-
-# install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# Install uv and ensure it's in PATH
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+ && mv /root/.local/bin/uv /usr/local/bin/uv \
+ && mv /root/.local/bin/uvx /usr/local/bin/uvx
 
 WORKDIR /app
 
-# copy project files for dependency resolution
+# Copy pyproject + lock first (layer caching)
 COPY pyproject.toml uv.lock ./
-# sync dependencies (prod only inside image)
-RUN uv sync --frozen --no-dev
 
-# now copy source
-COPY f1api ./f1api
+# Install dependencies
+RUN uv sync --frozen --no-cache
 
-EXPOSE 8000
+# Copy app
+COPY . .
+
+# Default command
 CMD ["uv", "run", "uvicorn", "f1api.main:app", "--host", "0.0.0.0", "--port", "8000"]
