@@ -17,6 +17,7 @@ It exposes seasons, drivers, teams, circuits, events, sessions, and results — 
     -   **Drivers** (`/api/v1/drivers`)
     -   **Teams** (`/api/v1/teams`)
     -   **Events** (`/api/v1/events`)
+    -   **Standings** (`/api/v1/standings/drivers`, `/api/v1/standings/constructors`) ⭐ NEW
 -   Filters & pagination (e.g. `/api/v1/events?season_year=2024`)
 -   Full test suite (`pytest + httpx`)
 -   Pre-commit hooks (Ruff, Black, MyPy)
@@ -122,6 +123,18 @@ curl http://localhost:8000/api/v1/seasons
 curl "http://localhost:8000/api/v1/events?season_year=2024"
 ```
 
+### ⭐ Get driver standings (NEW)
+
+```bash
+curl "http://localhost:8000/api/v1/standings/drivers?season_year=2024"
+```
+
+### ⭐ Get constructor standings (NEW)
+
+```bash
+curl "http://localhost:8000/api/v1/standings/constructors?season_year=2024"
+```
+
 ---
 
 ## 🧪 Tests
@@ -151,9 +164,10 @@ f1api/
 
 ## 🔮 Next Steps
 
--   Add standings endpoints (drivers & constructors)
 -   Expand seed data (all 2024 races & results)
+-   Add enhanced pagination with metadata
 -   Replace `/metrics` stub with real Prometheus exporter
 -   Add structured logging & error handling
+-   Add API key authentication
 
 ---
