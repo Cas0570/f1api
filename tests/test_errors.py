@@ -1,6 +1,5 @@
-import httpx
 import pytest
-from httpx import ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from f1api.main import app
 
@@ -8,7 +7,7 @@ from f1api.main import app
 @pytest.mark.asyncio
 async def test_404_json_shape() -> None:
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         resp = await client.get("/api/v1/does-not-exist")
     assert resp.status_code == 404
     body = resp.json()
@@ -25,7 +24,7 @@ async def test_unhandled_exception_returns_500() -> None:
     # dev-only route is available because default APP_ENV=development
     # Important: prevent httpx from re-raising app exceptions so we get a 500 response
     transport = ASGITransport(app=app, raise_app_exceptions=False)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         resp = await client.get("/api/v1/_debug/boom")
     assert resp.status_code == 500
     body = resp.json()

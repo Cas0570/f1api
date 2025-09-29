@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 
 from f1api.api.router import api_router
 from f1api.core.config import settings
@@ -20,6 +21,13 @@ init_exception_handlers(app)
 @app.get("/healthz", tags=["meta"])
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/metrics", tags=["meta"], response_class=PlainTextResponse)
+def metrics() -> str:
+    """Prometheus-friendly metrics stub."""
+
+    return "# Metrics not implemented yet\n"
 
 
 # main API

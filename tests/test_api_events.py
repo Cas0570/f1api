@@ -1,6 +1,5 @@
-import httpx
 import pytest
-from httpx import ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from f1api.main import app
 
@@ -8,7 +7,7 @@ from f1api.main import app
 @pytest.mark.asyncio
 async def test_list_events_filter_by_year() -> None:
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         resp = await client.get("/api/v1/events?season_year=2024")
     assert resp.status_code == 200
     data = resp.json()
@@ -18,7 +17,7 @@ async def test_list_events_filter_by_year() -> None:
 @pytest.mark.asyncio
 async def test_get_event_by_id() -> None:
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         list_resp = await client.get("/api/v1/events?season_year=2024")
         eid = list_resp.json()[0]["id"]
 
@@ -30,6 +29,6 @@ async def test_get_event_by_id() -> None:
 @pytest.mark.asyncio
 async def test_get_event_not_found() -> None:
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         resp = await client.get("/api/v1/events/99999")
     assert resp.status_code == 404

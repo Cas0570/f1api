@@ -8,6 +8,7 @@ It exposes seasons, drivers, teams, circuits, events, sessions, and results — 
 ## 🚀 Features (MVP)
 
 -   `/healthz` endpoint for liveness checks
+-   `/metrics` stub endpoint (Prometheus-compatible placeholder)
 -   CRUD-ready DB layer with SQLAlchemy 2.0
 -   Alembic migrations for schema evolution
 -   Seed script for minimal 2024 season data
@@ -152,7 +153,7 @@ f1api/
 
 -   Add standings endpoints (drivers & constructors)
 -   Expand seed data (all 2024 races & results)
--   Add `/metrics` for Prometheus
+-   Replace `/metrics` stub with real Prometheus exporter
 -   Add structured logging & error handling
 
 ---
