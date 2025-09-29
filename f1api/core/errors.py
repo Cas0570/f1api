@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
@@ -7,6 +8,8 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+logger = logging.getLogger(__name__)
 
 
 def _payload(
@@ -50,8 +53,13 @@ def init_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def _(request: Request, _: Exception) -> JSONResponse:
-        # We’ll wire structured logging in a later step
+    async def _(request: Request, exc: Exception) -> JSONResponse:
+        # ✅ Added: Log unhandled exceptions for debugging
+        logger.error(
+            f"Unhandled exception on {request.method} {request.url.path}",  # noqa: G004
+            exc_info=exc,
+            extra={"path": request.url.path, "method": request.method},
+        )
         return JSONResponse(
             status_code=500,
             content=_payload(

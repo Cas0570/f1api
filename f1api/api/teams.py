@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from f1api.api.deps import get_db
+from f1api.core.db import get_db
 from f1api.models import Team
 from f1api.schemas import TeamRead
 

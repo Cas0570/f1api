@@ -27,11 +27,18 @@ dev = [
 [tool.mypy]
 python_version = "3.13"
 warn_unused_ignores = true
-ignore_missing_imports = true
+ignore_missing_imports = false
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 check_untyped_defs = true
 plugins = []
+
+[[tool.mypy.overrides]]
+module = [
+    "alembic.*",
+    "sqlalchemy.*",
+]
+ignore_missing_imports = true
 
 [tool.black]
 line-length = 100

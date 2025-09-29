@@ -11,8 +11,8 @@ from f1api.models.base import Base, TimestampMixin
 
 
 class SessionType(StrEnum):
-    FP = "FP"  # practice (we can extend to FP1/FP2 later via name/sequence)
-    QUALIFYING = "Q"
+    FP = "FP"
+    QUALIFYING = "QUALIFYING"
     RACE = "RACE"
 
 
@@ -28,7 +28,7 @@ class Session(Base, TimestampMixin):
         SAEnum(SessionType, name="session_type"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(64), nullable=False)
-    session_order: Mapped[int] = mapped_column(nullable=False, default=1)  # FP=1, Q=2, Race=3
+    session_order: Mapped[int] = mapped_column(nullable=False, default=1)
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     __table_args__ = (Index("ix_sessions_event", "event_id"),)
