@@ -1,12 +1,12 @@
-import pytest
 import httpx
+import pytest
 from httpx import ASGITransport
 
 from f1api.main import app
 
 
 @pytest.mark.asyncio
-async def test_healthz_ok():
+async def test_healthz_ok() -> None:
     transport = ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         resp = await client.get("/healthz")

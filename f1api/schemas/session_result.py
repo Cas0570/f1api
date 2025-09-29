@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SessionResultRead(BaseModel):
@@ -9,3 +9,5 @@ class SessionResultRead(BaseModel):
     points: float
     status: str | None
     laps: int | None
+
+    model_config = ConfigDict(from_attributes=True)

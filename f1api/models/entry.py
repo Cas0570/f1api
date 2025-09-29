@@ -1,6 +1,8 @@
 from __future__ import annotations
-from sqlalchemy import ForeignKey, UniqueConstraint, Index
+
+from sqlalchemy import ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from f1api.models.base import Base, TimestampMixin
 
 

@@ -28,6 +28,9 @@ dev = [
 python_version = "3.13"
 warn_unused_ignores = true
 ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
 plugins = []
 
 [tool.black]
@@ -35,6 +38,8 @@ line-length = 100
 
 [tool.ruff]
 line-length = 100
+lint.select = ["E", "F", "B", "I"]  # style, errors, bugbear, import sorting
+lint.fixable = ["ALL"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

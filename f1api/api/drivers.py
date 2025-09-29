@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from f1api.api.deps import get_db
 from f1api.models import Driver
 from f1api.schemas import DriverRead
@@ -15,19 +16,20 @@ def list_drivers(
     code: str | None = None,
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-):
+) -> list[DriverRead]:
     stmt = select(Driver)
     if ref:
         stmt = stmt.filter(Driver.ref == ref)
     if code:
         stmt = stmt.filter(Driver.code == code)
     stmt = stmt.order_by(Driver.last_name, Driver.first_name).limit(limit).offset(offset)
-    return db.scalars(stmt).all()
+    drivers = db.scalars(stmt).all()
+    return [DriverRead.model_validate(d) for d in drivers]
 
 
 @router.get("/{driver_id}", response_model=DriverRead)
-def get_driver(driver_id: int, db: Session = Depends(get_db)):  # noqa: B008
+def get_driver(driver_id: int, db: Session = Depends(get_db)) -> DriverRead:  # noqa: B008
     driver = db.get(Driver, driver_id)
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
-    return driver
+    return DriverRead.model_validate(driver)

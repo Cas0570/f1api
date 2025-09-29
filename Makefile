@@ -1,7 +1,7 @@
 PY=uv run
 PKG=f1api
 
-.PHONY: setup lint type test migrate seed run up down build fmt
+.PHONY: setup lint fmt type test migrate seed run up down build check
 
 setup:
 	uv venv
@@ -12,6 +12,7 @@ lint:
 	uv run ruff check .
 
 fmt:
+	uv run ruff check . --fix
 	uv run ruff format .
 	uv run black .
 
@@ -39,3 +40,5 @@ down:
 
 build:
 	docker build -t f1api:local .
+
+check: lint type test

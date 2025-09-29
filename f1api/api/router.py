@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from f1api.api import seasons, teams, drivers, events
+
+from f1api.api import drivers, events, seasons, teams
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(seasons.router)

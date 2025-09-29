@@ -1,35 +1,42 @@
 from __future__ import annotations
 
-from datetime import datetime, date
+from datetime import date, datetime
+from typing import Any, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from f1api.core.db import SessionLocal
 from f1api.models import (
-    Season,
-    Team,
-    Driver,
+    Base,
     Circuit,
-    Event,
+    Driver,
     Entry,
-    Session as RaceSession,
-    SessionType,
+    Event,
+    Season,
     SessionResult,
+    SessionType,
+    Team,
+)
+from f1api.models import (
+    Session as RaceSession,
 )
 
+T = TypeVar("T", bound=Base)
 
-def get_or_create(session: Session, model, defaults: dict | None = None, **kwargs):
+
+def get_or_create(
+    session: Session, model: type[T], defaults: dict[str, Any] | None = None, **kwargs: Any
+) -> tuple[T, bool]:
     stmt = select(model).filter_by(**kwargs)
     obj = session.execute(stmt).scalar_one_or_none()
     if obj:
         return obj, False
-    params = dict(kwargs)
-    if defaults:
-        params.update(defaults)
+    params = {**kwargs, **(defaults or {})}
     obj = model(**params)
     session.add(obj)
-    session.flush()  # populate PKs
+    session.commit()
+    session.refresh(obj)
     return obj, True
 
 

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from sqlalchemy import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
-from sqlalchemy import DateTime
 
 
 class Base(DeclarativeBase):

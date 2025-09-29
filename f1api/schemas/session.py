@@ -1,5 +1,6 @@
 from datetime import datetime
-from pydantic import BaseModel
+
+from pydantic import BaseModel, ConfigDict
 
 
 class SessionRead(BaseModel):
@@ -9,3 +10,5 @@ class SessionRead(BaseModel):
     name: str
     session_order: int
     started_at: datetime | None
+
+    model_config = ConfigDict(from_attributes=True)

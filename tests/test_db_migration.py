@@ -1,4 +1,5 @@
 import os
+
 import pytest
 from sqlalchemy import text
 from sqlalchemy.engine import create_engine
@@ -8,7 +9,7 @@ from sqlalchemy.engine import create_engine
     not os.getenv("DATABASE_URL"),
     reason="DATABASE_URL not set; skipping DB migration test",
 )
-def test_seasons_table_exists():
+def test_seasons_table_exists() -> None:
     engine = create_engine(os.environ["DATABASE_URL"])
     with engine.connect() as conn:
         res = conn.execute(

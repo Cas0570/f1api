@@ -1,8 +1,12 @@
 from __future__ import annotations
-from enum import Enum
+
 from datetime import datetime
-from sqlalchemy import Enum as SAEnum, ForeignKey, Index, String
+from enum import Enum
+
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from f1api.models.base import Base, TimestampMixin
 
 

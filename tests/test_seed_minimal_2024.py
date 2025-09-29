@@ -1,4 +1,5 @@
 import os
+
 import pytest
 from sqlalchemy import create_engine, text
 
@@ -7,7 +8,7 @@ from sqlalchemy import create_engine, text
     not os.getenv("DATABASE_URL"),
     reason="DATABASE_URL not set; skipping seed test",
 )
-def test_seed_inserts_entities():
+def test_seed_inserts_entities() -> None:
     engine = create_engine(os.environ["DATABASE_URL"])
     with engine.begin() as conn:
         # season exists
@@ -27,7 +28,9 @@ def test_seed_inserts_entities():
         # event + sessions exist
         ev_id = conn.execute(
             text(
-                "SELECT e.id FROM events e JOIN seasons s ON e.season_id=s.id WHERE s.year=2024 AND e.round=1"
+                "SELECT e.id FROM events e "
+                "JOIN seasons s ON e.season_id = s.id "
+                "WHERE s.year = 2024 AND e.round = 1"
             )
         ).scalar_one()
         scount = conn.execute(

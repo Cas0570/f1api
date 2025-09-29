@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CircuitRead(BaseModel):
@@ -7,3 +7,5 @@ class CircuitRead(BaseModel):
     name: str
     country_code: str | None
     city: str | None
+
+    model_config = ConfigDict(from_attributes=True)

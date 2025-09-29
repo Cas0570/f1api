@@ -1,4 +1,5 @@
 from collections.abc import Generator
+
 from f1api.core.db import SessionLocal
 
 
